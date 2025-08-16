@@ -490,6 +490,7 @@ pip-selfcheck.json
 # Un-ignore scripts dir and Makefile.
 !scripts
 !Makefile
+!include
 
 .idea/
 .serverless/
