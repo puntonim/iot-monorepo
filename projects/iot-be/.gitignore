@@ -1,0 +1,4 @@
+.deploy/
+*.pid
+db-climate.csv
+db-remote-log.csv
