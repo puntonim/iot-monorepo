@@ -16,17 +16,31 @@ class RemoteLogOutputSchema(pydantic_utils.BasePydanticSchema):
     #  same attr names (fi. an ORM DB model).
     model_config = pydantic.ConfigDict(from_attributes=True)
     #
-    message: str
+    message: str | None = None
+    error: str | None = None
     date: datetime
     app_id: str
     device_id: str
     device_ip: IPvAnyAddress
 
+    @pydantic.model_validator(mode="after")
+    def require_message_or_error(self):
+        if not self.message and not self.error:
+            raise ValueError("Either message or error is required")
+        return self
+
 
 class RemoteLogInputSchema(pydantic_utils.BasePydanticSchema):
-    message: str
+    message: str | None = None
+    error: str | None = None
     app_id: str
     device_id: str
+
+    @pydantic.model_validator(mode="after")
+    def require_message_or_error(self):
+        if not self.message and not self.error:
+            raise ValueError("Either message or error is required")
+        return self
 
 
 # TODO add a query string like:
@@ -45,7 +59,7 @@ async def create_remote_log_endpoint(
 ) -> RemoteLogOutputSchema:
     client_ip: str = request.client.host
 
-    temp = domain.RemoteLogDomain().create_log(
+    log = domain.RemoteLogDomain().create_log(
         **{**input_schema.to_dict(), "device_ip": client_ip}
     )
-    return RemoteLogOutputSchema.model_validate(temp)
+    return RemoteLogOutputSchema.model_validate(log)

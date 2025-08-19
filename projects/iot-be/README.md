@@ -23,7 +23,12 @@ Infra
 
 Development env
 ---------------
-The app is served with FastAPI directly.
+The app is served with FastAPI directly.\
+Run it with:
+```sh
+$ make run-dev
+```
+
 
 Production env
 --------------

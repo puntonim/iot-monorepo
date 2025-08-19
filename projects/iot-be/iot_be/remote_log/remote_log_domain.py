@@ -12,10 +12,16 @@ class RemoteLogDomain:
 
     @classmethod
     def create_log(
-        cls, message: str, app_id: str, device_id: str, device_ip: str
+        cls,
+        message: str | None,
+        error: str | None,
+        app_id: str,
+        device_id: str,
+        device_ip: str,
     ) -> models.RemoteLogDbModel:
         temp = models.RemoteLogDbModel(
             message=message,
+            error=error,
             app_id=app_id,
             device_id=device_id,
             device_ip=device_ip,

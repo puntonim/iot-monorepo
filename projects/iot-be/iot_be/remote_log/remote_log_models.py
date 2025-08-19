@@ -12,7 +12,8 @@ from ..conf import settings
 
 
 class RemoteLogDbModel(pydantic_utils.BasePydanticSchema):
-    message: str
+    message: str | None = None
+    error: str | None = None
     date: Annotated[datetime, Field(default_factory=datetime_utils.now)]
 
     app_id: str
@@ -25,6 +26,7 @@ class RemoteLogDbModel(pydantic_utils.BasePydanticSchema):
             w.writerow(
                 [
                     self.message,
+                    self.error,
                     self.date.isoformat(),
                     self.app_id,
                     self.device_id,
