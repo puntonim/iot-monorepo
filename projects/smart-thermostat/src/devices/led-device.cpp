@@ -6,6 +6,7 @@
 
 namespace tstat {
 
+//
 //********** CLASS ErrorLedDevice **********************************************
 
 // "Soft" singleton global object defined here,
@@ -69,6 +70,7 @@ void ErrorLedDevice::stopBlinking() {
   switchOff();
 }
 
+//
 //********** CLASS DomainLedDevice *********************************************
 
 // "Soft" singleton global object defined here,

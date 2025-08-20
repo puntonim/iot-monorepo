@@ -32,6 +32,8 @@ class RemoteLogOutputSchema(pydantic_utils.BasePydanticSchema):
 
 class RemoteLogInputSchema(pydantic_utils.BasePydanticSchema):
     message: str | None = None
+    # `error` is an optional string. However, users can also store JSON by escaping
+    #  quotes, like: "{\"errorId\": \"MY_ERR_ID\"}".
     error: str | None = None
     app_id: str
     device_id: str

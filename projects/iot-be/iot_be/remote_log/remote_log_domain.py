@@ -14,6 +14,8 @@ class RemoteLogDomain:
     def create_log(
         cls,
         message: str | None,
+        # `error` is an optional string. However, users can also store JSON by escaping
+        #  quotes, like: "{\"errorId\": \"MY_ERR_ID\"}".
         error: str | None,
         app_id: str,
         device_id: str,
