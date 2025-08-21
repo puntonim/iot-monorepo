@@ -1,8 +1,8 @@
 /* SchedulerDomain is just a dumb cointainer class that includes:
- *  - the timer
+ *  - the countdown timer
  *  - the target temperature.
- * It does NOT tick the timer and doesn't check the tearget temperature against
- *  the sensor temperature.
+ * It does NOT tick the countdown timer and doesn't check the tearget T against
+ *  the sensor T.
  */
 #include "domain/scheduler-domain.h"
 
@@ -54,7 +54,8 @@ void SchedulerDomain::setup() {
                        pEvent->topic);
 #endif
         // This is a sort of hidden feature: when holding both rotary encoders,
-        //  we set the timer to 10 seconds. It is useful for a quick test.
+        //  we set the countdown timer to 10 seconds. It is useful for a
+        //  quick test.
         this->reset();
         timer.start(0, 0, 10);
         targetTemperature = settings::INITIAL_TARGET_T;
@@ -70,8 +71,8 @@ bool SchedulerDomain::isScheduled() { return !timer.isOver(); }
  * - if the display was OFF: noop (as we just have to switch on
  *    the display and this is done in display-device.cpp)
  * - if the display was ON and nothing was scheduled (SPENTO):
- *    - if the rotation was clockwise then start a new timer with the initial
- *       timer setting
+ *    - if the rotation was clockwise then start a new countdown timer with the
+ *       initial timer setting
  *    - if the rotation was clockwise then noop
  * - if the display was ON and there was an ongoing schedule: just add or
  *    subtract time
@@ -80,38 +81,38 @@ void SchedulerDomain::_onTimerRotaryRotation(
     pubsub_utils::TimerRotaryRotationEvent* pEvent) {
   // If the rotary encoder was rotated when the display was OFF, then noop (as
   //  as we just have to switch on the display and NOT to increment the timer).
-  if (pEvent->isDisplayOn) {
-    if (timer.isOver()) {
-      if (pEvent->value > 0) {
-        // If time is over and the timer rotary encoder was rotated clockwise,
-        //  then start a new timer with the initial time.
-        timer.start(settings::INITIAL_TIMER.h, settings::INITIAL_TIMER.m,
-                    settings::INITIAL_TIMER.s);
-        targetTemperature = settings::INITIAL_TARGET_T;
-        // And publish the new schedule event.
-        pubsub_utils::pubSub.publish(new pubsub_utils::SchedulerStartEvent());
-      }
+  if (!pEvent->isDisplayOn) return;
+
+  if (timer.isOver()) {
+    if (pEvent->value > 0) {
+      // If time is over and the timer rotary encoder was rotated clockwise,
+      //  then start a new countdown timer with the initial time.
+      timer.start(settings::INITIAL_TIMER.h, settings::INITIAL_TIMER.m,
+                  settings::INITIAL_TIMER.s);
+      targetTemperature = settings::INITIAL_TARGET_T;
+      // And publish the new schedule event.
+      pubsub_utils::pubSub.publish(new pubsub_utils::SchedulerStartEvent());
+    }
+  } else {
+    // If time is not over, then add/remove the time.
+    time_utils::Time time;
+    if (pEvent->value > 0) {
+      // Clockwise rotation: add time.
+      time = timer.add(settings::DELTA_TIME_ON_ROTARY_ROTATION.h,
+                       settings::DELTA_TIME_ON_ROTARY_ROTATION.m,
+                       settings::DELTA_TIME_ON_ROTARY_ROTATION.s);
     } else {
-      // If time is not over, then add/remove the time.
-      time_utils::Time time;
-      if (pEvent->value > 0) {
-        // Clockwise rotation: add time.
-        time = timer.add(settings::DELTA_TIME_ON_ROTARY_ROTATION.h,
-                         settings::DELTA_TIME_ON_ROTARY_ROTATION.m,
-                         settings::DELTA_TIME_ON_ROTARY_ROTATION.s);
-      } else {
-        // Counterclockwise rotation: subtract time.
-        time = timer.subtract(settings::DELTA_TIME_ON_ROTARY_ROTATION.h,
-                              settings::DELTA_TIME_ON_ROTARY_ROTATION.m,
-                              settings::DELTA_TIME_ON_ROTARY_ROTATION.s);
-      }
-      timer.tick();
-      if (!timer.isOver()) {
-        pubsub_utils::pubSub.publish(
-            new pubsub_utils::SchedulerTimerUpdateEvent(time));
-      } else {
-        pubsub_utils::pubSub.publish(new pubsub_utils::SchedulerEndEvent());
-      }
+      // Counterclockwise rotation: subtract time.
+      time = timer.subtract(settings::DELTA_TIME_ON_ROTARY_ROTATION.h,
+                            settings::DELTA_TIME_ON_ROTARY_ROTATION.m,
+                            settings::DELTA_TIME_ON_ROTARY_ROTATION.s);
+    }
+    timer.tick();
+    if (!timer.isOver()) {
+      pubsub_utils::pubSub.publish(
+          new pubsub_utils::SchedulerTimerUpdateEvent(time));
+    } else {
+      pubsub_utils::pubSub.publish(new pubsub_utils::SchedulerEndEvent());
     }
   }
 }

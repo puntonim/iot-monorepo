@@ -19,6 +19,7 @@ LiquidCrystalI2C_RS_EN(lcd, 0x27, false);
 
 namespace tstat {
 
+//
 //********** CLASS DisplayDevice ***********************************************
 
 // "Soft" singleton global object defined here,
@@ -61,8 +62,8 @@ void DisplayDevice::setup() {
                        pEvent->topic);
 #endif
         // Switch ON the display if not already ON, cancel and reschedule
-        //  the switch OFF task in 20 sec. Do not update the timer on display
-        //  as there will be a SchedulerTimerUpdateEvent for that.
+        //  the switch OFF task in 20 sec. Do not update the countdown timer
+        //  on display as there will be a SchedulerTimerUpdateEvent for that.
         this->switchOn();
       });
 
@@ -156,7 +157,7 @@ void DisplayDevice::switchOff(bool doResetSwitchOffDisplayTaskId /* = true */) {
   //  any).
   if (doResetSwitchOffDisplayTaskId) switchOffTaskId = TASKMGR_INVALIDID;
 
-    // And cancel any existing tasks to display data because no needed anymore.
+  // And cancel any existing tasks to display data because no needed anymore.
 #if IS_DEBUG == true
   Serial.println((String) "DisplayDevice - stopping the display task #" +
                  displayDataTaskId);
@@ -344,6 +345,7 @@ void DisplayDevice::_refreshFirstRow() {
   }
 }
 
+//
 //********** CLASS RowPrinter **************************************************
 
 /*

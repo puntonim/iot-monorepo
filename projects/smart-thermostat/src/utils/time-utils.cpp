@@ -73,8 +73,7 @@ Time Timer::tick() {
     elapsedSecs = (int)round(
         (std::numeric_limits<unsigned long>::max() - _lastTickTs + nowTs) /
         1000.0);
-  }
-  if (elapsedSecs >= 1) {
+  } else if (elapsedSecs >= 1) {
     _lastTickTs = nowTs;
     subtract(elapsedSecs);
   }
