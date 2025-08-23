@@ -1,3 +1,5 @@
+// TODO see TODO.md
+
 // Disables static receiver code, like receive timer ISR handler and static
 //  IRReceiver and irparams data. Saves 450 bytes program memory and 269 bytes
 //  RAM. This is due to a bug in RISC-V compiler, which requires unused function
